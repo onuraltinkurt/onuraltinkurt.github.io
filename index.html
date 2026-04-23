@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>onur@sre:~</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d0d0d; color: #c8ffc8; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7; min-height: 100vh; }
+  .terminal { max-width: 860px; margin: 0 auto; padding: 2rem 2.5rem 4rem; }
+  .topbar { display: flex; align-items: center; gap: 8px; margin-bottom: 2.5rem; padding-bottom: 1rem; border-bottom: 1px solid #1e3a1e; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #febc2e; }
+  .dot.green { background: #28c840; }
+  .topbar-title { flex: 1; text-align: center; font-size: 11px; color: #3d6b3d; letter-spacing: 0.05em; }
+  .cmd-line { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.25rem; margin-top: 1.8rem; }
+  .prompt { color: #4ade80; font-weight: 500; white-space: nowrap; }
+  .prompt .at { color: #86efac; }
+  .prompt .path { color: #6ee7b7; }
+  .prompt .dollar { color: #a3e635; }
+  .cmd { color: #e2e8f0; }
+  .output { padding-left: 0; margin-top: 0.6rem; margin-bottom: 0.5rem; }
+  .name-ascii { color: #4ade80; font-size: 11px; line-height: 1.3; white-space: pre; }
+  .tagline { color: #86efac; font-size: 13px; margin-top: 0.6rem; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 0.8rem; }
+  .meta-item { color: #6ee7b7; font-size: 12px; }
+  .meta-item .key { color: #3d6b3d; }
+  .meta-item .val { color: #a7f3d0; }
+  .about-text { color: #d1fae5; font-size: 12.5px; max-width: 680px; line-height: 1.8; }
+  .job { margin-bottom: 1.8rem; padding-left: 1rem; border-left: 2px solid #1e3a1e; }
+  .job-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
+  .job-title { color: #4ade80; font-weight: 500; font-size: 13px; }
+  .job-company { color: #86efac; font-size: 12px; margin-top: 0.1rem; }
+  .job-date { color: #3d6b3d; font-size: 11px; }
+  .job-section-label { color: #3d6b3d; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.9rem; margin-bottom: 0.3rem; }
+  .job-desc { color: #a7f3d0; font-size: 12px; line-height: 1.85; }
+  .job-desc li { list-style: none; margin-bottom: 0.2rem; }
+  .job-desc li::before { content: '▸ '; color: #4ade80; }
+  .top-header { background: #4ade80; color: #0d0d0d; padding: 2px 6px; font-size: 11px; margin-bottom: 4px; font-weight: 700; }
+  .top-subheader { color: #3d6b3d; font-size: 10.5px; margin-bottom: 8px; }
+  .top-cols { display: grid; grid-template-columns: 3fr 80px 1fr; gap: 0 1rem; font-size: 11.5px; border-bottom: 1px solid #1a3a1a; padding-bottom: 4px; margin-bottom: 4px; }
+  .top-col-head { color: #3d6b3d; font-size: 10.5px; }
+  .top-row { display: grid; grid-template-columns: 3fr 80px 1fr; gap: 0 1rem; font-size: 11.5px; padding: 1px 0; align-items: center; }
+  .top-row:hover { background: #0f1f0f; }
+  .top-skill { color: #a7f3d0; }
+  .top-skill.highlight { color: #4ade80; font-weight: 500; }
+  .top-years { color: #3d6b3d; font-size: 10.5px; }
+  .top-bar-wrap { width: 100%; background: #1a3a1a; height: 8px; border-radius: 1px; overflow: hidden; }
+  .top-bar { height: 8px; background: #4ade80; border-radius: 1px; }
+  .top-bar.mid { background: #86efac; }
+  .top-bar.low { background: #2d5a2d; }
+  .top-category { color: #3d6b3d; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 10px; margin-bottom: 3px; }
+  .ls-header { color: #3d6b3d; font-size: 10.5px; margin-bottom: 6px; }
+  .ls-row { display: grid; grid-template-columns: 90px 60px 1fr 120px; gap: 0 1rem; font-size: 11.5px; padding: 2px 0; align-items: baseline; }
+  .ls-perms { color: #3d6b3d; }
+  .ls-size { color: #6ee7b7; }
+  .ls-name { color: #4ade80; font-weight: 500; }
+  .ls-date { color: #3d6b3d; font-size: 10.5px; text-align: right; }
+  .ls-desc { color: #a7f3d0; font-size: 11px; margin-top: -1px; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #0f1f0f; }
+  .dl-btn { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 0.6rem 1.4rem; border: 1px solid #4ade80; color: #4ade80; font-family: inherit; font-size: 12px; background: transparent; cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; }
+  .dl-btn:hover { background: #4ade80; color: #0d0d0d; }
+  .cursor { display: inline-block; width: 8px; height: 14px; background: #4ade80; margin-left: 2px; vertical-align: middle; animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .comment { color: #2d5a2d; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="terminal">
+
+  <div class="topbar">
+    <div class="dot red"></div>
+    <div class="dot yellow"></div>
+    <div class="dot green"></div>
+    <div class="topbar-title">onur@sre: ~/portfolio — zsh</div>
+  </div>
+
+  <div class="comment"># Last login: Thu Apr 23 2026 09:41:00 from 192.168.1.1</div>
+
+  <div class="cmd-line">
+    <span class="prompt"><span class="at">onur</span>@<span class="path">sre</span> <span class="dollar">~</span> $</span>
+    <span class="cmd">cat whoami.txt</span>
+  </div>
+  <div class="output">
+    <div class="name-ascii">
+  ██████╗ ███╗   ██╗██╗   ██╗██████╗
+ ██╔═══██╗████╗  ██║██║   ██║██╔══██╗
+ ██║   ██║██╔██╗ ██║██║   ██║██████╔╝
+ ██║   ██║██║╚██╗██║██║   ██║██╔══██╗
+ ╚██████╔╝██║ ╚████║╚██████╔╝██║  ██║
+  ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝</div>
+    <div class="tagline">Site Reliability Engineer · Observability Specialist</div>
+    <div class="meta-row">
+      <div class="meta-item"><span class="key">location: </span><span class="val">London, UK</span></div>
+      <div class="meta-item"><span class="key">phone: </span><span class="val">+44 74 5943 8635</span></div>
+      <div class="meta-item"><span class="key">email: </span><span class="val">onur.altinkurt@gmail.com</span></div>
+      <div class="meta-item"><span class="key">linkedin: </span><span class="val">linkedin.com/in/onuraltinkurt</span></div>
+    </div>
+  </div>
+
+  <div class="cmd-line">
+    <span class="prompt"><span class="at">onur</span>@<span class="path">sre</span> <span class="dollar">~</span> $</span>
+    <span class="cmd">cat summary.md</span>
+  </div>
+  <div class="output">
+    <div class="about-text">
+      SRE with 3 years of hands-on experience owning observability platforms and production infrastructure at scale.
+      Deep expertise in ELK Stack and Grafana — from cluster architecture and ingestion pipeline design to alerting,
+      ILM, and cross-cluster replication. Experienced in Linux administration, incident response, application-level
+      troubleshooting, and operational automation. MSc in Software Engineering from Boğaziçi University.
+      Full right to work in the UK.
+    </div>
+  </div>
+
+  <div class="cmd-line">
+    <span class="prompt"><span class="at">onur</span>@<span class="path">sre</span> <span class="dollar">~</span> $</span>
+    <span class="cmd">top -u onur</span>
+  </div>
+  <div class="output">
+    <div class="top-header">top - Skills &nbsp;|&nbsp; onur@sre &nbsp;|&nbsp; uptime: 3+ yrs</div>
+    <div class="top-subheader">sorted by proficiency — q to quit (just kidding, keep reading)</div>
+    <div class="top-category">// observability</div>
+    <div class="top-cols">
+      <div class="top-col-head">SKILL</div>
+      <div class="top-col-head">EXPERIENCE</div>
+      <div class="top-col-head">PROFICIENCY</div>
+    </div>
+    <div class="top-row"><span class="top-skill highlight">Elasticsearch</span><span class="top-years">3 yrs</span><div class="top-bar-wrap"><div class="top-bar" style="width:97%"></div></div></div>
+    <div class="top-row"><span class="top-skill highlight">ELK Stack (full)</span><span class="top-years">3 yrs</span><div class="top-bar-wrap"><div class="top-bar" style="width:95%"></div></div></div>
+    <div class="top-row"><span class="top-skill highlight">Grafana</span><span class="top-years">3 yrs</span><div class="top-bar-wrap"><div class="top-bar" style="width:92%"></div></div></div>
+    <div class="top-row"><span class="top-skill">Prometheus</span><span class="top-years">1 yr</span><div class="top-bar-wrap"><div class="top-bar mid" style="width:55%"></div></div></div>
+    <div class="top-row"><span class="top-skill">OpenTelemetry</span><span class="top-years">learning</span><div class="top-bar-wrap"><div class="top-bar low" style="width:30%"></div></div></div>
+    <div class="top-category">// infrastructure & sre</div>
+    <div class="top-row"><span class="top-skill highlight">Linux (RHEL/CentOS)</span><span class="top-years">3 yrs</span><div class="top-bar-wrap"><div class="top-bar" style="width:93%"></div></div></div>
+    <div class="top-row"><span class="top-skill highlight">Incident response</span><span class="top-years">3 yrs</span><div class="top-bar-wrap"><div class="top-bar" style="width:90%"></div></div></div>
+    <div class="top-row"><span class="top-skill">Docker</span><span class="top-years">2 yrs</span><div class="top-bar-wrap"><div class="top-bar mid" style="width:70%"></div></div></div>
+    <div class="top-row"><span class="top-skill">AWS (ECS/ECR/CW)</span><span class="top-years">2 yrs</span><div class="top-bar-wrap"><div class="top-bar mid" style="width:65%"></div></div></div>
+    <div class="top-row"><span class="top-skill">Kubernetes</span><span class="top-years">CKA prep</span><div class="top-bar-wrap"><div class="top-bar low" style="width:35%"></div></div></div>
+    <div class="top-category">// automation & iac</div>
+    <div class="top-row"><span class="top-skill highlight">Python · Bash</span><span class="top-years">3 yrs</span><div class="top-bar-wrap"><div class="top-bar" style="width:88%"></div></div></div>
+    <div class="top-row"><span class="top-skill highlight">Ansible</span><span class="top-years">2 yrs</span><div class="top-bar-wrap"><div class="top-bar" style="width:80%"></div></div></div>
+    <div class="top-row"><span class="top-skill">Terraform</span><span class="top-years">hands-on</span><div class="top-bar-wrap"><div class="top-bar low" style="width:30%"></div></div></div>
+    <div class="top-row"><span class="top-skill">Jenkins · Git</span><span class="top-years">2 yrs</span><div class="top-bar-wrap"><div class="top-bar mid" style="width:72%"></div></div></div>
+  </div>
+
+  <div class="cmd-line">
+    <span class="prompt"><span class="at">onur</span>@<span class="path">sre</span> <span class="dollar">~</span> $</span>
+    <span class="cmd">cat experience.log</span>
+  </div>
+  <div class="output">
+    <div class="job">
+      <div class="job-header">
+        <div>
+          <div class="job-title">Site Reliability Engineer</div>
+          <div class="job-company">Sigorta Bilgi ve Gözetim Merkezi — Istanbul, Turkey</div>
+        </div>
+        <div class="job-date">10/2022 – 10/2025</div>
+      </div>
+      <div class="job-section-label">// observability platform</div>
+      <ul class="job-desc">
+        <li>Designed and implemented end-to-end observability solutions — covering log management, metrics collection, alerting, and dashboarding — for a large-scale, regulated production environment running 100+ business-critical services</li>
+        <li>Took full ownership of ELK Stack and Grafana platforms — log ingestion pipelines, ILM, Elasticsearch cluster management, cross-cluster replication, performance optimisation, and Grafana dashboard configuration</li>
+        <li>Maintained data correctness across logs and metrics, ensuring business teams and C-level could confidently rely on platform-derived data for revenue reporting and operational decisions</li>
+        <li>Migrated 100+ production servers from manually managed Filebeat configs to centralised Elastic Agent Fleet, improving scalability, consistency, and observability reliability across environments</li>
+        <li>Initiated log collection from Kubernetes-based workloads into the centralised ELK platform, extending observability coverage to containerised services</li>
+        <li>Leveraged logs and metrics to identify recurring reliability gaps and drive system-level improvements</li>
+        <li>Automated operational tasks using Python and Bash to reduce manual effort and operational risk</li>
+      </ul>
+      <div class="job-section-label">// production systems & application support</div>
+      <ul class="job-desc">
+        <li>Managed and troubleshot high-availability RHEL/CentOS and Windows Server environments hosting business-critical Java, Python, .NET, and Node.js applications via Tomcat, IIS, and React-based front-end services</li>
+        <li>Owned end-to-end deployment lifecycle for production services — configuration management, release coordination, and rollback procedures — while minimising service disruption</li>
+        <li>Managed production operations for an AI chatbot service and a Django-based web platform — covering deployment, log monitoring, incident response, and availability assurance</li>
+        <li>Acted as primary technical contact for production incidents in a regulated environment; performed root cause analysis and implemented permanent fixes to prevent recurrence</li>
+        <li>Served in 24/7 on-call rotation; designed and maintained backup and disaster recovery procedures</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <div>
+          <div class="job-title">Production Engineer</div>
+          <div class="job-company">Eczacıbaşı (Vitra) · HABAŞ — Istanbul, Turkey</div>
+        </div>
+        <div class="job-date">08/2018 – 10/2022</div>
+      </div>
+      <ul class="job-desc">
+        <li>Managed built-in software systems of large-scale industrial machinery — configuring operational parameters, programming modes, and control settings to maximise throughput and production efficiency in regulated manufacturing environments</li>
+        <li>Diagnosed and resolved equipment-level failures through systematic root cause analysis, reducing unplanned downtime and maintaining production continuity</li>
+        <li>Applied systems thinking to optimise workflows and machine configurations under strict quality and compliance constraints, in close collaboration with cross-functional teams</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cmd-line">
+    <span class="prompt"><span class="at">onur</span>@<span class="path">sre</span> <span class="dollar">~</span> $</span>
+    <span class="cmd">ls -ltrha education/</span>
+  </div>
+  <div class="output">
+    <div class="ls-header">total 2 entries — sorted by date, oldest first</div>
+    <div class="ls-row">
+      <span class="ls-perms">-rw-r--r--</span>
+      <span class="ls-size">4.0K</span>
+      <span class="ls-name">bsc_manufacturing_engineering/</span>
+      <span class="ls-date">Sep 2018</span>
+    </div>
+    <div class="ls-desc">Istanbul Technical University &nbsp;·&nbsp; BSc Manufacturing Engineering</div>
+    <div class="ls-row">
+      <span class="ls-perms">-rw-r--r--</span>
+      <span class="ls-size">4.0K</span>
+      <span class="ls-name">msc_software_engineering/</span>
+      <span class="ls-date">Jun 2025</span>
+    </div>
+    <div class="ls-desc">Boğaziçi University &nbsp;·&nbsp; MSc Software Engineering</div>
+  </div>
+
+  <div class="cmd-line">
+    <span class="prompt"><span class="at">onur</span>@<span class="path">sre</span> <span class="dollar">~</span> $</span>
+    <span class="cmd">ls -ltrha projects/</span>
+  </div>
+  <div class="output">
+    <div class="ls-header">total 4 entries — sorted by date, oldest first</div>
+    <div class="ls-row">
+      <span class="ls-perms">-rwxr-xr-x</span>
+      <span class="ls-size">2.1K</span>
+      <span class="ls-name">containerization-hpc/</span>
+      <span class="ls-date">2023</span>
+    </div>
+    <div class="ls-desc">Containerization solutions for HPC workloads · Boğaziçi Uni</div>
+    <div class="ls-row">
+      <span class="ls-perms">-rwxr-xr-x</span>
+      <span class="ls-size">1.8K</span>
+      <span class="ls-name">aiDevsecops-survey/</span>
+      <span class="ls-date">2023</span>
+    </div>
+    <div class="ls-desc">Survey on AIDevSecOps practices · Boğaziçi Uni</div>
+    <div class="ls-row">
+      <span class="ls-perms">-rwxr-xr-x</span>
+      <span class="ls-size">3.4K</span>
+      <span class="ls-name">sentiment-analysis-bert/</span>
+      <span class="ls-date">2024</span>
+    </div>
+    <div class="ls-desc">Logistic Regression vs BERT vs ALBERT on Twitter data · Boğaziçi Uni</div>
+    <div class="ls-row">
+      <span class="ls-perms">-rwxr-xr-x</span>
+      <span class="ls-size">5.2K</span>
+      <span class="ls-name">django-react-platform/</span>
+      <span class="ls-date">2024</span>
+    </div>
+    <div class="ls-desc">Community information management platform · Django + React · Boğaziçi Uni</div>
+  </div>
+
+  <div class="cmd-line">
+    <span class="prompt"><span class="at">onur</span>@<span class="path">sre</span> <span class="dollar">~</span> $</span>
+    <span class="cmd">./download_resume.sh</span>
+  </div>
+  <div class="output">
+    <a class="dl-btn" href="#">$ curl -O OnurAltinkurt_CV.pdf</a>
+  </div>
+
+  <div class="cmd-line">
+    <span class="prompt"><span class="at">onur</span>@<span class="path">sre</span> <span class="dollar">~</span> $</span>
+    <span class="cmd"><span class="cursor"></span></span>
+  </div>
+
+</div>
+</body>
+</html>
